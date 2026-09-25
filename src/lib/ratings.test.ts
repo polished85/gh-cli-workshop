@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { clampRating, formatStarRating } from './ratings';
+import { clampRating, formatRatingValue, formatStarRating, getStarFillPercentages } from './ratings';
 
 describe('clampRating', () => {
     it('returns the value unchanged when within range', () => {
@@ -47,5 +47,37 @@ describe('formatStarRating', () => {
 
     it('is deterministic for the same input', () => {
         expect(formatStarRating(3.5)).toBe(formatStarRating(3.5));
+    });
+});
+
+describe('formatRatingValue', () => {
+    it('returns the no-rating message when rating is null', () => {
+        expect(formatRatingValue(null)).toBe('No rating yet');
+    });
+
+    it('formats a rating out of five', () => {
+        expect(formatRatingValue(4.2)).toBe('4.2 / 5');
+    });
+
+    it('clamps ratings before formatting', () => {
+        expect(formatRatingValue(6)).toBe('5.0 / 5');
+    });
+});
+
+describe('getStarFillPercentages', () => {
+    it('fills each star according to the fractional rating', () => {
+        expect(getStarFillPercentages(3.8)).toEqual([100, 100, 100, 80, 0]);
+    });
+
+    it('returns five empty stars for a zero rating', () => {
+        expect(getStarFillPercentages(0)).toEqual([0, 0, 0, 0, 0]);
+    });
+
+    it('clamps percentages for ratings outside the five-star range', () => {
+        expect(getStarFillPercentages(6)).toEqual([100, 100, 100, 100, 100]);
+    });
+
+    it('returns no stars when the rating is null', () => {
+        expect(getStarFillPercentages(null)).toEqual([]);
     });
 });
